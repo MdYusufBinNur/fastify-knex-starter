@@ -14,9 +14,10 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 For production mode
 
-### `npm run test`
+## Project Structure
 
-Run the test cases.
+- plugins are globally used 
+- routes are encapsulated logic
 
 ## Learn More
 

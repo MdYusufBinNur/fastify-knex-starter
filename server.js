@@ -12,7 +12,9 @@ const closeWithGrace = require('close-with-grace')
 const environment = process.env.NODE_ENV
 
 // Instantiate Fastify with some config
+// give array of ip for trustproxy in production
 const app = Fastify({
+  trustProxy: true,
   logger: {
     transport:
       environment === 'dev'
