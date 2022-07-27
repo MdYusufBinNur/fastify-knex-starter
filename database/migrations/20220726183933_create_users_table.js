@@ -6,12 +6,11 @@ exports.up = async knex => {
   await knex.schema.createTable('users', table => {
     table.increments('id')
     table.string('name')
-    table.unique('email').dropNullable()
+    table.string('email', 128).unique().notNullable()
     table.boolean('email_verified').defaultTo(false)
-    table.string('active')
+    table.string('password', 64).notNullable()
     table.string('user_type')
-    table.timestamp('created_at').dropNullable().defaultTo(knex.fn.now())
-    table.timestamp('updated_at')
+    table.timestamps(true, true)
   })
 }
 
