@@ -16,8 +16,10 @@ For production mode
 
 ## Project Structure
 
-- plugins are globally used 
+- plugins are globally available 
 - routes are encapsulated logic
+- controllers are route handlers, `this` comes by default. arrow functions will break this.
+- database has migrations and schema, used by `knex` commands
 
 ## Learn More
 

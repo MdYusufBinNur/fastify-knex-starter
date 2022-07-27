@@ -1,6 +1,6 @@
 'use strict'
 
-const { register, me } = require('../controllers/auth')
+const { register, me } = require('../controllers/auth.controller')
 
 module.exports = async function (fastify, opts) {
   fastify.get('/', async function (request, reply) {

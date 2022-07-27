@@ -3,17 +3,19 @@
 async function register(req, reply) {
   try {
     const token = await this.jwt.sign({ user_email: 'axel.tahmid@gmail.com' })
-    reply.send({ token })
+    return { token }
   } catch (err) {
-    reply.send({ err })
+    return err
   }
 }
 
 async function me(req, reply) {
   try {
-    reply.send(req.user)
+    // introduces race condition, if async, use return not reply
+    // reply.send(req.user)
+    return req.user
   } catch (err) {
-    reply.send({ err })
+    return err
   }
 }
 
