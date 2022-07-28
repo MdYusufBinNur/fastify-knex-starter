@@ -1,0 +1,17 @@
+{
+    "delay": "2000",
+    "restartable": "rs",
+    "ignore": [
+        ".git",
+        "node_modules/**/node_modules",
+        "database"
+    ],
+    "verbose": true,
+    "execMap": {
+        "js": "node --harmony"
+    },
+    "env": {
+        "NODE_ENV": "dev"
+    },
+    "ext": "js,json"
+}
