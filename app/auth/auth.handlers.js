@@ -1,6 +1,6 @@
 'use strict'
 
-const { createUser } = require('../services/register.service')
+const { createUser, fetchUser } = require('./auth.services')
 
 async function registerHandler(request, reply) {
   /**
@@ -16,4 +16,14 @@ async function registerHandler(request, reply) {
   return reply.code(201).send(data)
 }
 
-module.exports = { registerHandler }
+async function meHandler(request, reply) {
+  this.log.info('here in me handler')
+
+  const data = await fetchUser(this, { request })
+
+  // introduces race condition, if async, use return not reply
+  // reply.send(req.user)
+  return reply.code(200).send(data)
+}
+
+module.exports = { registerHandler, meHandler }
