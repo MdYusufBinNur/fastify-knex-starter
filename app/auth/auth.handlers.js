@@ -2,7 +2,10 @@
 
 const { createUser, fetchUser } = require('./auth.services')
 
-async function registerHandler(request, reply) {
+// if async, reply.code(200); return req.user;
+// if sync,  reply.code(200),send(req.user);
+
+async function register(request, reply) {
   /**
    * * 1. Check for any extra validations
    * * 2. Format the data that is to be passed to services
@@ -13,17 +16,15 @@ async function registerHandler(request, reply) {
 
   const data = await createUser(this, { request })
 
-  return reply.code(201).send(data)
+  reply.code(201)
+  return data
 }
 
-async function meHandler(request, reply) {
-  this.log.info('here in me handler')
-
+async function me(request, reply) {
   const data = await fetchUser(this, { request })
 
-  // introduces race condition, if async, use return not reply
-  // reply.send(req.user)
-  return reply.code(200).send(data)
+  reply.code(200)
+  return data
 }
 
-module.exports = { registerHandler, meHandler }
+module.exports = { register, me }

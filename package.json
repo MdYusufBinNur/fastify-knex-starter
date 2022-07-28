@@ -39,7 +39,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-unicorn": "^43.0.2",
     "nodemon": "^2.0.19",
     "pino-pretty": "^8.1.0",
     "prettier": "^2.7.1"

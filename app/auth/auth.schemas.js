@@ -15,9 +15,7 @@ const registerSchema = {
   response: { 201: registerResponse, ...errorSchemas }
 }
 
-// const meHeader = S.object().prop('Authorization', S.string().required())
 const meResponse = S.object().prop('email', S.string()).prop('iat', S.string())
-// headers: meHeader,
 
 const meSchema = {
   response: { 200: meResponse, ...errorSchemas }

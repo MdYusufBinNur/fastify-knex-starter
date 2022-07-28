@@ -3,12 +3,12 @@
 async function createUser(fastify, { request }) {
   try {
     const { email, password } = request.body
-    //   const { data: createdUser, error } = '';
-    //   if (error) throw error;
-    //   return createUser;
+
     fastify.log.info('here in service')
 
     // fastify.knex('users').insert({ email, password })
+    //   if (error) throw error;
+    //   return createUser;
 
     const access_token = fastify.jwt.sign({ email: email })
 

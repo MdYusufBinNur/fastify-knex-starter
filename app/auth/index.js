@@ -1,6 +1,6 @@
 'use strict'
 
-const { registerHandler, meHandler } = require('./auth.handlers')
+const { register, me } = require('./auth.handlers')
 const { registerSchema, meSchema } = require('./auth.schemas')
 
 module.exports = async function (fastify) {
@@ -8,7 +8,7 @@ module.exports = async function (fastify) {
     method: 'POST',
     url: '/register',
     schema: registerSchema,
-    handler: registerHandler
+    handler: register
   })
 
   fastify.route({
@@ -16,6 +16,6 @@ module.exports = async function (fastify) {
     url: '/me',
     onRequest: fastify.authenticate,
     schema: meSchema,
-    handler: meHandler
+    handler: me
   })
 }
