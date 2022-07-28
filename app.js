@@ -1,10 +1,9 @@
 'use strict'
 const { join } = require('path')
 const AutoLoad = require('@fastify/autoload')
+const routes = require('./app/routes')
 
 module.exports = async function (fastify, opts) {
-  // Place here your custom code!
-
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
@@ -13,10 +12,5 @@ module.exports = async function (fastify, opts) {
     options: Object.assign({}, opts)
   })
 
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  fastify.register(AutoLoad, {
-    dir: join(__dirname, 'routes'),
-    options: Object.assign({}, opts)
-  })
+  fastify.register(routes)
 }
