@@ -7,7 +7,7 @@ const dbConfig = require('../knexfile')
 async function knexPlugin(fastify, options, next) {
   try {
     if (!fastify.knex) {
-      const handler = knex(dbConfig)
+      const handler = await knex(dbConfig)
 
       fastify.decorate('knex', handler)
 
@@ -24,4 +24,4 @@ async function knexPlugin(fastify, options, next) {
   }
 }
 
-module.exports = fp(knexPlugin, { name: 'fastify-knex' })
+module.exports = fp(knexPlugin)

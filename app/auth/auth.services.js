@@ -6,14 +6,23 @@ async function createUser(fastify, { request }) {
 
     fastify.log.info('here in service')
 
-    // fastify.knex('users').insert({ email, password })
-    //   if (error) throw error;
-    //   return createUser;
+    var check = await fastify.knex('users').where({ email: email })
+
+    fastify.log.info('check query')
+    fastify.log.info(check)
+    console.log(check)
+
+    if (check) {
+      throw new Error(`User with email: ${email} already exists`)
+    }
+
+    // await fastify.knex.insert({ email, password }).into('users')
 
     const access_token = fastify.jwt.sign({ email: email })
 
     return { access_token, email }
   } catch (err) {
+    fastify.log.error(err)
     return err
   }
 }
