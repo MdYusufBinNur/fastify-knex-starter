@@ -1,39 +1,36 @@
 'use strict'
 
 async function createUser(fastify, { request }) {
-  try {
-    const { email, password } = request.body
+  // try {
+  const { email, password } = request.body
 
-    fastify.log.info('here in service')
+  fastify.log.info('here in service')
 
-    var check = await fastify.knex('users').where({ email: email })
+  await fastify.knex.insert({ email, password }).into('users')
 
-    fastify.log.info('check query')
-    fastify.log.info(check)
-    console.log(check)
+  const access_token = fastify.jwt.sign({ email: email })
 
-    if (check) {
-      throw new Error(`User with email: ${email} already exists`)
-    }
-
-    // await fastify.knex.insert({ email, password }).into('users')
-
-    const access_token = fastify.jwt.sign({ email: email })
-
-    return { access_token, email }
-  } catch (err) {
-    fastify.log.error(err)
-    return err
-  }
+  return { access_token, email }
+  // } catch (err) {
+  //   // throw err
+  //   return err
+  // }
 }
 
 async function fetchUser(fastify, { request }) {
   try {
     fastify.log.info('here in me service')
 
-    // fastify.knex('users').insert({ email, password })
+    // var check = await fastify.knex('users').where({ email: email })
+    // fastify.log.info('check query')
+    // fastify.log.info(check)
+    // if (check) {
+    //   throw new Error(`User with email: ${email} already exists`)
+    // }
 
-    return request.user
+    var check = await fastify.knex('users').where({ email: request.user })
+
+    return check
   } catch (err) {
     return err
   }

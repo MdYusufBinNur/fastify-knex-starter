@@ -12,10 +12,11 @@ function validationErrorMessage(error, context) {
 }
 
 function errorHandler(error, request, reply) {
+  this.log.error('error handler: ')
   this.log.error(error)
 
   if (Array.isArray(error.validation)) {
-    const body = {
+    var body = {
       errors: error.validation.map(err => ({
         code: 'REQUEST_VALIDATION_ERROR',
         message: validationErrorMessage(err, error.validationContext)
@@ -26,6 +27,31 @@ function errorHandler(error, request, reply) {
     reply.send(body)
     return
   }
+
+  if (error.sql) {
+    this.log.info('sql error: ')
+
+    var body = {
+      code: error.code,
+      message: error.sqlMessage,
+      error: error.message
+    }
+
+    reply.code(500)
+    reply.type('application/json')
+    reply.send(body)
+    return
+  }
+
+  var body = {
+    code: 'UNHANDLED_ERROR',
+    message: error.message,
+    error: true
+  }
+  reply.code(error.statusCode ? error.statusCode : 500)
+  reply.type('application/json')
+  reply.send(body)
+  return
 }
 
 module.exports = {

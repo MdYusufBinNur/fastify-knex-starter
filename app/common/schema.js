@@ -1,4 +1,6 @@
-'use strict';
+'use strict'
+
+const S = require('fluent-json-schema')
 
 const headers = {
   withAuthorization: {
@@ -12,7 +14,7 @@ const headers = {
       }
     }
   }
-};
+}
 
 const validationErrorSchema = {
   type: 'object',
@@ -29,7 +31,7 @@ const validationErrorSchema = {
       }
     }
   }
-};
+}
 
 const commonErrorSchema = {
   type: 'object',
@@ -45,7 +47,12 @@ const commonErrorSchema = {
       }
     }
   }
-};
+}
+
+const serverErrorSchema = S.object()
+  .prop('code', S.string())
+  .prop('message', S.string())
+  .prop('error', S.mixed([S.TYPES.BOOLEAN, S.TYPES.STRING]))
 
 const errorSchemas = {
   400: validationErrorSchema,
@@ -54,11 +61,11 @@ const errorSchemas = {
   405: commonErrorSchema,
   415: commonErrorSchema,
   429: commonErrorSchema,
-  500: commonErrorSchema,
+  500: serverErrorSchema,
   502: commonErrorSchema
-};
+}
 
 module.exports = {
   headers,
   errorSchemas
-};
+}
