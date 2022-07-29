@@ -2,38 +2,62 @@
 
 const { createUser, authenticate, fetchUser } = require('./auth.services')
 
-// if async, reply.code(200); return req.user;
-// if sync,  reply.code(200),send(req.user);
-
+/**
+ * Handler for /register
+ */
 async function register(request, reply) {
-  /**
-   * * 1. Check for any extra validations
-   * * 2. Format the data that is to be passed to services
-   * * 3. Receive the response and make any changes if required.
-   */
+  const { name, email, password } = request.body
 
-  this.log.info('here in handler')
+  await createUser(this, { name, email, password })
 
-  const data = await createUser(this, { request })
+  const response_data = {
+    error: false,
+    message: 'Registration Sucessful'
+  }
 
-  // TODO: success message with data wrapper
   reply.code(201)
-  return data
-}
-
-async function login(request, reply) {
-  const data = await authenticate(this, { request })
-
-  reply.code(200)
-  reply.send(data)
+  reply.send(response_data)
   return
 }
 
-async function me(request, reply) {
-  const data = await fetchUser(this, { request })
+/**
+ * Handler for /login
+ */
+async function login(request, reply) {
+  const { email, password } = request.body
+
+  const user_email = await authenticate(this, { email, password })
+
+  const access_token = this.jwt.sign({ email: user_email })
+
+  const response_data = {
+    error: false,
+    message: 'Login Sucessful',
+    access_token
+  }
 
   reply.code(200)
-  return data
+  reply.send(response_data)
+  return
+}
+
+/**
+ * Handler for /me
+ */
+async function me(request, reply) {
+  const { email } = request.user
+
+  const data = await fetchUser(this, email)
+
+  const response_data = {
+    error: false,
+    message: 'User Fetched!',
+    data
+  }
+
+  reply.code(200)
+  reply.send(response_data)
+  return
 }
 
 module.exports = { login, register, me }

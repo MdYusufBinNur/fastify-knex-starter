@@ -1,55 +1,49 @@
 'use strict'
 
-async function createUser(fastify, { request }) {
-  const { email, password } = request.body
+/**
+ * Service for /login
+ */
+async function authenticate(fastify, data) {
+  const { email, password } = data
 
-  const hash = await fastify.bcrypt.hash(password)
-
-  // fastify.log.info(`hashed password: ${hash}`)
-
-  await fastify.knex.insert({ email, password: hash }).into('users')
-
-  const access_token = fastify.jwt.sign({ email: email })
-
-  return { access_token, email }
-}
-
-async function authenticate(fastify, { request }) {
-  const { email, password } = request.body
-
-  // fastify.log.info('login query: ')
   const query = await fastify.knex('users').where('email', email)
-  // fastify.log.info(query)
 
-  if (query.length == false)
-    throw fastify.httpErrors.notFound(`User with email: ${email}, not found!`)
+  if (query.length == false) throw fastify.httpErrors.notFound(`User: ${email}, not found!`)
 
   const match = await fastify.bcrypt.compare(password, query[0].password)
 
   if (match == false) throw fastify.httpErrors.forbidden('Password Incorrect!')
 
-  const access_token = fastify.jwt.sign({ email: email })
-
-  return { data: query[0], access_token }
+  return email
 }
 
-async function fetchUser(fastify, { request }) {
-  try {
-    fastify.log.info('here in me service')
+/**
+ * Service for /register
+ */
+async function createUser(fastify, data) {
+  const { name, email, password } = data
 
-    // var check = await fastify.knex('users').where({ email: email })
-    // fastify.log.info('check query')
-    // fastify.log.info(check)
-    // if (check) {
-    //   throw new Error(`User with email: ${email} already exists`)
-    // }
+  const query = await fastify.knex('users').where('email', email)
 
-    var check = await fastify.knex('users').where({ email: request.user })
+  if (query.length == true)
+    throw fastify.httpErrors.badRequest(`User: ${email} already exists! Please Login`)
 
-    return check
-  } catch (err) {
-    return err
-  }
+  const hash = await fastify.bcrypt.hash(password)
+
+  await fastify.knex.insert({ name, email, password: hash }).into('users')
+
+  return
+}
+
+/**
+ * Service for /me
+ */
+async function fetchUser(fastify, email) {
+  const query = await fastify.knex('users').where('email', email)
+
+  if (query.length == false) throw fastify.httpErrors.notFound(`User: ${email}, not found!`)
+
+  return query[0]
 }
 
 module.exports = { createUser, authenticate, fetchUser }

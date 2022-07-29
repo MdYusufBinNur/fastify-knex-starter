@@ -1,7 +1,7 @@
 'use strict'
 
 const { login, register, me } = require('./auth.handlers')
-const { registerSchema, meSchema } = require('./auth.schemas')
+const { loginSchema, registerSchema, meSchema } = require('./auth.schemas')
 
 module.exports = async function (fastify) {
   fastify.route({
@@ -12,17 +12,17 @@ module.exports = async function (fastify) {
   })
 
   fastify.route({
+    method: 'POST',
+    url: '/login',
+    schema: loginSchema,
+    handler: login
+  })
+
+  fastify.route({
     method: 'GET',
     url: '/me',
     onRequest: fastify.authenticate,
     schema: meSchema,
     handler: me
-  })
-
-  fastify.route({
-    method: 'POST',
-    url: '/login',
-    // schema: meSchema,
-    handler: login
   })
 }
