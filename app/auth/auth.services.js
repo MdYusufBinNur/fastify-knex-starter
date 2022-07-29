@@ -17,21 +17,20 @@ async function createUser(fastify, { request }) {
 async function authenticate(fastify, { request }) {
   const { email, password } = request.body
 
-  fastify.log.info('login query: ')
+  // fastify.log.info('login query: ')
   const query = await fastify.knex('users').where('email', email)
-  fastify.log.info(query)
+  // fastify.log.info(query)
 
-  if (query.length == false) {
+  if (query.length == false)
     throw fastify.httpErrors.notFound(`User with email: ${email}, not found!`)
-  }
 
   const match = await fastify.bcrypt.compare(password, query[0].password)
 
-  fastify.log.info(match ? 'Matched!' : 'Not matched!')
+  if (match == false) throw fastify.httpErrors.forbidden('Password Incorrect!')
 
-  return query
+  const access_token = fastify.jwt.sign({ email: email })
 
-  // .catch(err => fastify.log.error(err.message))
+  return { data: query[0], access_token }
 }
 
 async function fetchUser(fastify, { request }) {

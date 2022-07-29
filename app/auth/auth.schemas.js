@@ -1,7 +1,6 @@
 'use strict'
 
 const S = require('fluent-json-schema')
-const { errorSchemas } = require('../common/schema')
 // const { EMAIL } = require('../../common/pattern') .pattern('')
 
 const registerBody = S.object()
@@ -13,13 +12,13 @@ const registerResponse = S.object().prop('access_token', S.string()).prop('email
 
 const registerSchema = {
   body: registerBody,
-  response: { 201: registerResponse, ...errorSchemas }
+  response: { 201: registerResponse }
 }
 
 const meResponse = S.object().prop('email', S.string()).prop('iat', S.string())
 
 const meSchema = {
-  response: { 200: meResponse, ...errorSchemas }
+  response: { 200: meResponse }
 }
 
 module.exports = { registerSchema, meSchema }
