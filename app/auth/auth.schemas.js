@@ -1,7 +1,6 @@
 'use strict'
 
 const S = require('fluent-json-schema')
-// const { EMAIL } = require('../../common/pattern') .pattern('')
 
 /**
  * Simple wrapper for response
