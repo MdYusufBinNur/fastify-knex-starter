@@ -12,9 +12,11 @@ function validationErrorMessage(error, context) {
 }
 
 function errorHandler(error, request, reply) {
-  this.log.error('error handler: ')
   this.log.error(error)
 
+  /**
+   * Validation error formatting
+   */
   if (Array.isArray(error.validation)) {
     var body = {
       errors: error.validation.map(err => ({
@@ -28,9 +30,10 @@ function errorHandler(error, request, reply) {
     return
   }
 
+  /**
+   * SQL Error formatting
+   */
   if (error.sql) {
-    this.log.info('sql error: ')
-
     var body = {
       code: error.code,
       message: error.sqlMessage,

@@ -1,6 +1,6 @@
 'use strict'
 
-const { createUser, fetchUser } = require('./auth.services')
+const { createUser, authenticate, fetchUser } = require('./auth.services')
 
 // if async, reply.code(200); return req.user;
 // if sync,  reply.code(200),send(req.user);
@@ -16,8 +16,17 @@ async function register(request, reply) {
 
   const data = await createUser(this, { request })
 
+  // TODO: success message with data wrapper
   reply.code(201)
   return data
+}
+
+async function login(request, reply) {
+  const data = await authenticate(this, { request })
+
+  reply.code(200)
+  reply.send(data)
+  return
 }
 
 async function me(request, reply) {
@@ -27,4 +36,4 @@ async function me(request, reply) {
   return data
 }
 
-module.exports = { register, me }
+module.exports = { login, register, me }

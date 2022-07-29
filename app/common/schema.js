@@ -33,23 +33,7 @@ const validationErrorSchema = {
   }
 }
 
-const commonErrorSchema = {
-  type: 'object',
-  properties: {
-    errors: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          code: { type: 'string' },
-          message: { type: 'string' }
-        }
-      }
-    }
-  }
-}
-
-const serverErrorSchema = S.object()
+const commonErrorSchema = S.object()
   .prop('code', S.string())
   .prop('message', S.string())
   .prop('error', S.mixed([S.TYPES.BOOLEAN, S.TYPES.STRING]))
@@ -61,7 +45,7 @@ const errorSchemas = {
   405: commonErrorSchema,
   415: commonErrorSchema,
   429: commonErrorSchema,
-  500: serverErrorSchema,
+  500: commonErrorSchema,
   502: commonErrorSchema
 }
 

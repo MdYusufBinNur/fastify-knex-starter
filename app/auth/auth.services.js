@@ -1,20 +1,37 @@
 'use strict'
 
 async function createUser(fastify, { request }) {
-  // try {
   const { email, password } = request.body
 
-  fastify.log.info('here in service')
+  const hash = await fastify.bcrypt.hash(password)
 
-  await fastify.knex.insert({ email, password }).into('users')
+  // fastify.log.info(`hashed password: ${hash}`)
+
+  await fastify.knex.insert({ email, password: hash }).into('users')
 
   const access_token = fastify.jwt.sign({ email: email })
 
   return { access_token, email }
-  // } catch (err) {
-  //   // throw err
-  //   return err
-  // }
+}
+
+async function authenticate(fastify, { request }) {
+  const { email, password } = request.body
+
+  fastify.log.info('login query: ')
+  const query = await fastify.knex('users').where('email', email)
+  fastify.log.info(query)
+
+  if (query.length == false) {
+    throw fastify.httpErrors.notFound(`User with email: ${email}, not found!`)
+  }
+
+  const match = await fastify.bcrypt.compare(password, query[0].password)
+
+  fastify.log.info(match ? 'Matched!' : 'Not matched!')
+
+  return query
+
+  // .catch(err => fastify.log.error(err.message))
 }
 
 async function fetchUser(fastify, { request }) {
@@ -36,4 +53,4 @@ async function fetchUser(fastify, { request }) {
   }
 }
 
-module.exports = { createUser, fetchUser }
+module.exports = { createUser, authenticate, fetchUser }

@@ -9,7 +9,8 @@ const sensible = require('@fastify/sensible')
  * @see https://github.com/fastify/fastify-sensible
  */
 module.exports = fp(async function (fastify, opts) {
-  fastify.register(sensible, {
-    errorHandler: false
-  })
+  // fastify.register(sensible, {
+  //   errorHandler: true
+  // })
+  fastify.register(sensible)
 })
