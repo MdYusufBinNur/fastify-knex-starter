@@ -16,9 +16,14 @@ For production mode
 
 ## Project Structure
 
-- plugins are globally available 
+- app contains all separated logic
+- subdirectories of app contain encapsulated applications 
+- handlers take care of request/response data
+- services take care of database operations
+- schemas define serialization and validation
+- plugins are globally available logic
 - routes are encapsulated logic
-- controllers are route handlers, `this` comes by default. arrow functions will break this.
+- `this` context is enabled inside handlers by default. arrow functions will break the context.
 - database has migrations and schema, used by `knex` commands
 
 ## Learn More
