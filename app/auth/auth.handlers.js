@@ -28,7 +28,7 @@ async function login(request, reply) {
 
   const user_email = await authenticate(this, { email, password })
 
-  const access_token = this.jwt.sign({ email: user_email })
+  const access_token = this.jwt.sign({ email: user_email }, { expiresIn: '1d' })
 
   const response_data = {
     error: false,

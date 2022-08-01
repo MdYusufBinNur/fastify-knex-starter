@@ -29,8 +29,9 @@ async function createUser(fastify, data) {
     throw fastify.httpErrors.badRequest(`User: ${email} already exists! Please Login`)
 
   const hash = await fastify.bcrypt.hash(password)
+  const role = 'customer'
 
-  await fastify.knex.insert({ name, email, password: hash }).into('users')
+  await fastify.knex.insert({ name, email, password: hash, user_type: role }).into('users')
 
   return
 }
