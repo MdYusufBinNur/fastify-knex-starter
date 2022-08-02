@@ -11,3 +11,4 @@ node_modules
 nodemon.json
 kubernetes
 Dockerfile
+README.md

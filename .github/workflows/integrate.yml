@@ -1,0 +1,33 @@
+name: Fastify Continuous Integration
+
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # runs-on: [self-hosted, Linux, ARM64]
+    # strategy:
+    #   matrix:
+    #     node-version: [14.x, 16.x]
+    #     os: ['ubuntu-latest', 'windows-latest']
+    # accessible via ${{ matrix.node-version }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/fastify:test
+    - name: Docker push 
+      run: docker push ${{secrets.DOCKER_USER}}/fastify:test
+
