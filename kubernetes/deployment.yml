@@ -1,42 +1,107 @@
 ---
-# Load balancer
+# Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: development-actions-lb
-  annotations:
-    service.beta.kubernetes.io/do-loadbalancer-name: "development-actions-lb"
-    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+  name: fastify-site
+  labels:
+    app.kubernetes.io/name: fastify-site
+    app.kubernetes.io/component: Fastify
+    app.kubernetes.io/version: "4.3.0"
+  namespace: your-namespace
 spec:
-  type: LoadBalancer
-  selector:
-    app: development-actions
+  type: ClusterIP
   ports:
     - name: http
+      port: 443
       protocol: TCP
-      port: 80
-      targetPort: 4000
+      targetPort: 3000
+  selector:
+    app: fastify-site
+    app.kubernetes.io/name: fastify-site
+    tier: frontend
 ---
-# Actions deployment
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jcs-wp-ingress
+  namespace: your-namespace
+  labels:
+    app.kubernetes.io/name: fastify-site
+    app.kubernetes.io/component: Fastify
+    app.kubernetes.io/version: "4.3.0"
+  annotations:
+    # Let's Encrypt Cert-Manager Annotations
+    cert-manager.io/cluster-issuer: letsencrypt-staging-issuer
+    # Change this to "letsencrypt-production-issuer" for prod-manifest final deployment.
+    kubernetes.io/tls-acme: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: test.example.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: fastify-site
+              port: 
+                number: 443
+  tls:
+  - hosts:
+    - test.example.com
+    secretName: fastify-site-testing-tls
+---
+# Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: development-actions
+  name: fastify-site
+  labels:
+    app: fastify-site
+    app.kubernetes.io/name: fastify-site
+    app.kubernetes.io/component: Fastify
+    app.kubernetes.io/version: "4.3.0"
+    tier: frontend
+  namespace: your-namespace
 spec:
   replicas: 1
+  # Change this to 3 in production deployment
+  revisionHistoryLimit: 1 
   selector:
     matchLabels:
-      app: development-actions
+      app: fastify-site
+      app.kubernetes.io/name: fastify-site
+      tier: frontend
   template:
     metadata:
       labels:
-        app: development-actions
+        app: fastify-site
+        app.kubernetes.io/name: fastify-site
+        app.kubernetes.io/component: WordPress
+        app.kubernetes.io/version: "6.0.1"
+        tier: frontend
+      annotations:
+        linkerd.io/inject: disabled
     spec:
+      nodeSelector: 
+        kubernetes.io/hostname: "your-hostname"
       containers:
-        - image: registry.digitalocean.com/myapp/my-image:latest
-          name: development-actions
+        - name: fastify-instance
+          image: your-image/your-tag
+          imagePullPolicy: Always
           ports:
-            - containerPort: 4000
+            - containerPort: 3000
               protocol: TCP
-      imagePullSecrets:
-        - name: registry-myapp
+          resources: 
+            requests:
+              cpu: "0.1"
+              memory: 128Mi
+            limits:
+              cpu: "0.5"
+              memory: 256Mi
+      # imagePullSecrets:
+      #   - name: registry-myapp
