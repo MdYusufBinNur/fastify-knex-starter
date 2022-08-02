@@ -1,0 +1,13 @@
+node_modules
+.vscode
+.git
+.github
+.gitignore
+.dockerignore
+.eslintignore
+.eslintrc.json
+.prettierrc.json
+.prettierignore
+nodemon.json
+kubernetes
+Dockerfile
