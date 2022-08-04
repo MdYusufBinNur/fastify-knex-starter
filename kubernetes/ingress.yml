@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jcs-wp-ingress
+  namespace: your-namespace
+  labels:
+    app.kubernetes.io/name: fastify-site
+    app.kubernetes.io/component: Fastify
+    app.kubernetes.io/version: "4.3.0"
+  annotations:
+    # Let's Encrypt Cert-Manager Annotations
+    cert-manager.io/cluster-issuer: letsencrypt-staging-issuer
+    # Change this to "letsencrypt-production-issuer" for prod-manifest final deployment.
+    kubernetes.io/tls-acme: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: test.example.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: fastify-site
+              port: 
+                number: 443
+  tls:
+  - hosts:
+    - test.example.com
+    secretName: fastify-site-testing-tls

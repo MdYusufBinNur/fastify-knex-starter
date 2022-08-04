@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastify-site
+  labels:
+    app.kubernetes.io/name: fastify-site
+    app.kubernetes.io/component: Fastify
+    app.kubernetes.io/version: "4.3.0"
+  namespace: your-namespace
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 443
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: fastify-site
+    app.kubernetes.io/name: fastify-site
+    tier: frontend
