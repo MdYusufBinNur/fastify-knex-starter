@@ -2,8 +2,11 @@
 
 const { login, register, me } = require('./auth.handlers')
 const { loginSchema, registerSchema, meSchema } = require('./auth.schemas')
+const bcrypt = require('./bcrypt')
 
 module.exports = async function (fastify) {
+  fastify.register(bcrypt)
+
   fastify.route({
     method: 'POST',
     url: '/register',

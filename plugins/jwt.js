@@ -2,13 +2,13 @@
 
 require('dotenv').config()
 const fp = require('fastify-plugin')
-const jwt = require('@fastify/jwt')
+const { default: fastifyJwt } = require('@fastify/jwt')
 
 /**
  * This plugins issues Json Web Tokens for Authorization
  */
-module.exports = fp(async function (fastify, opts) {
-  fastify.register(jwt, {
+async function fastJWT(fastify, opts) {
+  fastify.register(fastifyJwt, {
     secret: process.env.JWT_SECRET
   })
 
@@ -19,4 +19,5 @@ module.exports = fp(async function (fastify, opts) {
       reply.send(err)
     }
   })
-})
+}
+module.exports = fp(fastJWT)

@@ -1,28 +1,46 @@
-# Getting Started with [Fastify-CLI](https://www.npmjs.com/package/fastify-cli)
-This project was bootstrapped with Fastify-CLI.
+# Fastify Starter Template
+This is a fastify starter template with authentication using `JWT` and `bcrypt.js` via `Knex.js`
+ 
+Includes common features like :
+- global error handling
+- serialization 
+- validation
+- `helmet`
+- `cors` 
+- `formdata` 
+- `multipart`
+- `dotenv`
 
-## Available Scripts
+## Installation Steps
 
-In the project directory, you can run:
+A few installation methods provided below:
 
-### `npm run dev`
+### For Docker users :
 
-To start the app in dev mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+this is a production image, no pretty logs
 
-### `npm start`
+```
+docker build . -t fastify
+docker run -p 3000:3000 -d fastify
+```
 
-For production mode
+### Node >= 16, on any machine.
+
+create ```.env``` from ```.env.example``` file and replace with necessary values.
+```
+npm i 
+npm run dev
+```
 
 ## Project Structure
 
+- everything in fastify is a plugin. u can register them.
 - app contains all separated logic
 - subdirectories of app contain encapsulated applications 
 - handlers take care of request/response data
 - services take care of database operations
 - schemas define serialization and validation
 - plugins are globally available logic
-- routes are encapsulated logic
 - `this` context is enabled inside handlers by default. arrow functions will break the context.
 - database has migrations and schema, used by `knex` commands
 

@@ -1,7 +1,7 @@
 {
-  "name": "arektacoinstore",
+  "name": "fastifystarter",
   "version": "1.0.0",
-  "description": "This is the backend for ArektaCoinStore",
+  "description": "This is a starter template for fastify",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -17,7 +17,6 @@
   "author": "Axel Tahmid",
   "license": "ISC",
   "dependencies": {
-    "@fastify/autoload": "^5.0.0",
     "@fastify/cors": "^8.0.0",
     "@fastify/formbody": "^7.0.1",
     "@fastify/helmet": "^9.1.0",

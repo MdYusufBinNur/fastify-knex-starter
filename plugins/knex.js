@@ -2,12 +2,11 @@
 
 const fp = require('fastify-plugin')
 const knex = require('knex')
-const dbConfig = require('../knexfile')
 
 async function knexPlugin(fastify, options, next) {
   try {
     if (!fastify.knex) {
-      const handler = await knex(dbConfig)
+      const handler = await knex(options)
 
       fastify.decorate('knex', handler)
 
