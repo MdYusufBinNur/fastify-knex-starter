@@ -3,7 +3,7 @@
 const fp = require('fastify-plugin')
 const bcrypt = require('bcryptjs')
 
-function fastifyBcrypt(fastify, opts, next) {
+const fastifyBcrypt = function (fastify, opts, next) {
   const saltWorkFactor = opts.saltWorkFactor || 10
 
   const hash = async pwd => bcrypt.hash(pwd, saltWorkFactor)

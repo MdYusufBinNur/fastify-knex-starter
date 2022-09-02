@@ -3,12 +3,12 @@ const { resolve } = require('path')
 
 const debug = process.env.NODE_ENV == 'dev' ? true : false
 
-const dbConfig = {
+const knexconf = {
   client: 'mysql',
-  pool: {
-    min: parseInt(process.env.DB_MIN_CONNECTIONS),
-    max: parseInt(process.env.DB_MAX_CONNECTIONS)
-  },
+  // pool: {
+  //   min: parseInt(process.env.DB_MIN_CONNECTIONS),
+  //   max: parseInt(process.env.DB_MAX_CONNECTIONS)
+  // },
   acquireConnectionTimeout: 10000,
   migrations: {
     tableName: 'knex_migrations',
@@ -18,14 +18,14 @@ const dbConfig = {
     directory: resolve(__dirname, 'database/seeds')
   },
   connection: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT
+    host: process.env.DB_HOST || '127.0.0.1',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'acs-backend',
+    port: process.env.DB_PORT || '3306'
   },
   asyncStackTraces: true,
   debug: debug
 }
 
-module.exports = dbConfig
+module.exports = knexconf

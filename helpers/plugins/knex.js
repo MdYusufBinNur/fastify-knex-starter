@@ -3,7 +3,7 @@
 const fp = require('fastify-plugin')
 const knex = require('knex')
 
-async function knexPlugin(fastify, options, next) {
+const fastifyKnex = async function (fastify, options, next) {
   try {
     if (!fastify.knex) {
       const handler = await knex(options)
@@ -23,4 +23,4 @@ async function knexPlugin(fastify, options, next) {
   }
 }
 
-module.exports = fp(knexPlugin)
+module.exports = fp(fastifyKnex)

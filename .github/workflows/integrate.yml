@@ -1,18 +1,12 @@
-name: Fastify-Build-Docker-Image
+name: "Build Docker Image - Github"
 
 on:
-  # push:
-  #   branches:
-  #     - production
-  # pull_request:
-  #   branches:
-  #     - production
   workflow_dispatch:
     inputs:
       tag:
         description: 'Docker Image Tag'
         required: true
-
+        
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -41,7 +35,6 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          platforms: linux/arm64,linux/arm,linux/amd64
+          platforms: linux/arm64,linux/amd64
           push: true
-          tags: logicbuff/jatiocoinshop:${{ github.event.inputs.tag }}
-
+          tags: <Image Name>:${{ github.event.inputs.tag }}

@@ -1,14 +1,40 @@
 'use strict'
 
-const { createUser, authenticate, fetchUser } = require('./auth.services')
+const {
+  registration,
+  authenticate,
+  fetchUser,
+  getOTP,
+  verifyOTP,
+  updateUserPassword,
+  verifyUserEmail
+} = require('./auth.services')
 
 /**
- * Handler for /register
+ * * POST /v1/auth/login
  */
-async function register(request, reply) {
-  const { name, email, password } = request.body
+const login = async function (request, reply) {
+  const { email, password } = request.body
 
-  await createUser(this, { name, email, password })
+  const token = await authenticate(this, { email, password })
+
+  const response_data = {
+    error: false,
+    message: 'Login Sucessful',
+    data: { token }
+  }
+
+  reply.code(200)
+  return response_data
+}
+
+/**
+ * * POST /v1/auth/register
+ */
+const register = async function (request, reply) {
+  const { email, password } = request.body
+
+  await registration(this, { email, password })
 
   const response_data = {
     error: false,
@@ -16,35 +42,13 @@ async function register(request, reply) {
   }
 
   reply.code(201)
-  reply.send(response_data)
-  return
+  return response_data
 }
 
 /**
- * Handler for /login
+ * * GET /v1/auth/me
  */
-async function login(request, reply) {
-  const { email, password } = request.body
-
-  const user_email = await authenticate(this, { email, password })
-
-  const access_token = this.jwt.sign({ email: user_email }, { expiresIn: '1d' })
-
-  const response_data = {
-    error: false,
-    message: 'Login Sucessful',
-    access_token
-  }
-
-  reply.code(200)
-  reply.send(response_data)
-  return
-}
-
-/**
- * Handler for /me
- */
-async function me(request, reply) {
+const me = async function (request, reply) {
   const { email } = request.user
 
   const data = await fetchUser(this, email)
@@ -56,8 +60,74 @@ async function me(request, reply) {
   }
 
   reply.code(200)
-  reply.send(response_data)
-  return
+  return response_data
 }
 
-module.exports = { login, register, me }
+/**
+ * * POST /v1/auth/otp-code
+ */
+
+const requestOTP = async function (request, reply) {
+  const email = request.body.email
+
+  const otpcode = await getOTP(this, email)
+
+  this.log.info(`OTP for ${email} : ${otpcode}`)
+
+  const response_data = {
+    error: false,
+    message: `OTP was sent to: ${email}`
+  }
+
+  reply.code(200)
+  return response_data
+}
+
+/**
+ * * POST /v1/auth/verify-email
+ */
+const verifyEmail = async function (request, reply) {
+  const email = request.user.email
+
+  if (request.user.email_verified) throw this.httpErrors.badRequest(`${email} already verified!`)
+
+  const check = await verifyOTP(this, { code: request.body.code, email })
+
+  if (check) {
+    const token = await verifyUserEmail(this, email)
+
+    reply.code(201)
+
+    return {
+      error: false,
+      message: 'User Email Verified',
+      data: { token }
+    }
+  } else {
+    throw this.httpErrors.badRequest('OTP incorrect or expired')
+  }
+}
+
+/**
+ * * POST /v1/auth/reset-password
+ */
+const resetPassword = async function (request, reply) {
+  const { email, password, code } = request.body
+
+  const check = await verifyOTP(this, { code, email })
+
+  if (check) {
+    await updateUserPassword(this, { email, password })
+
+    reply.code(201)
+
+    return {
+      error: false,
+      message: 'User Password Changed'
+    }
+  } else {
+    throw this.httpErrors.badRequest('OTP incorrect or expired')
+  }
+}
+
+module.exports = { login, register, me, requestOTP, verifyEmail, resetPassword }

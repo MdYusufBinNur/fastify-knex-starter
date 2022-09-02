@@ -9,6 +9,8 @@ node_modules
 .prettierrc.json
 .prettierignore
 nodemon.json
-kubernetes
+.kubernetes
 Dockerfile
 README.md
+.env
+.env.example

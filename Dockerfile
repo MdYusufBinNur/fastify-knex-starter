@@ -1,12 +1,14 @@
 # --------------> The build image
-FROM node:16 AS build
+FROM node:16-alpine3.15 AS build
 WORKDIR /usr/src/app
 COPY package*.json /usr/src/app/
-RUN npm i --only=production
+RUN npm install -g npm@8.18.0
+RUN npm install --omit=dev
 
 # --------------> The production image
 FROM node:16-alpine3.15
-RUN apk add dumb-init
+RUN npm install -g npm@8.18.0
+RUN apk add --no-cache dumb-init
 ENV NODE_ENV production
 USER node
 WORKDIR /usr/src/app

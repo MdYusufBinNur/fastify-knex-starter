@@ -1,23 +1,27 @@
 'use strict'
 
-// Read the .env file.
 require('dotenv').config()
 
-// Require the framework
 const Fastify = require('fastify')
-
-// Require library to exit fastify process, gracefully (if possible)
 const closeWithGrace = require('close-with-grace')
+const { default: fastifyCors } = require('@fastify/cors')
+const { default: fastifyHelmet } = require('@fastify/helmet')
+const { default: fastifySensible } = require('@fastify/sensible')
+const { default: fastifyRedis } = require('@fastify/redis')
 
-const environment = process.env.NODE_ENV
+const knexconf = require('./knexfile')
+const knex = require('./helpers/plugins/knex')
+const fastJWT = require('./helpers/plugins/jwt')
+const routes = require('./app/routes')
 
-// Instantiate Fastify with some config
-// give array of ip for trustproxy in production
+/**
+ * * give array of ip for trustproxy in production
+ */
 const app = Fastify({
   trustProxy: true,
   logger: {
     transport:
-      environment === 'dev'
+      process.env.NODE_ENV == 'dev'
         ? {
             target: 'pino-pretty',
             options: {
@@ -29,13 +33,38 @@ const app = Fastify({
   }
 })
 
-// Register your application as a normal plugin.
-const appService = require('./app.js')
+const corsOptions = {
+  origin: [
+    /\.example\.com$/,
+    'http://localhost:3000',
+  ],
+  method: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin', 'Origin'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}
 
-app.register(appService)
+app.register(fastifyCors, corsOptions)
+app.register(fastifyHelmet, { global: true })
+app.register(fastifySensible)
 
-// delay is the number of milliseconds for the graceful close to finish
-const closeListeners = closeWithGrace({ delay: 5000 }, async function ({ signal, err, manual }) {
+app.register(fastifyRedis, {
+  host: process.env.REDIS_URL || 'redis.redis.svc.cluster.local',
+  port: process.env.REDIS_PORT || '6379'
+})
+
+app.register(knex, knexconf)
+app.register(fastJWT)
+
+/**
+ * * Register the app directory
+ */
+app.register(routes)
+
+/**
+ *  * delay is the number of milliseconds for the graceful close to finish
+ * */
+const closeListeners = closeWithGrace({ delay: 2000 }, async function ({ signal, err, manual }) {
   if (err) {
     app.log.error(err)
   }
@@ -47,7 +76,6 @@ app.addHook('onClose', async (instance, done) => {
   done()
 })
 
-// Start listening. 0.0.0.0 for container port mapping
 app.listen(
   {
     port: process.env.PORT || 3000,

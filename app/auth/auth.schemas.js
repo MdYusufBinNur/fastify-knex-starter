@@ -1,67 +1,64 @@
 'use strict'
 
 const S = require('fluent-json-schema')
+const { emailPassObj, userObject, responseObject } = require('../../helpers/common/schema')
 
 /**
- * Simple wrapper for response
+ * * POST /v1/auth/login
  */
-function responseBody(data) {
-  if (data) {
-    return S.object()
-      .prop('error', S.boolean())
-      .prop('message', S.string())
-      .prop('access_token', S.string())
-      .prop('data', data)
-  }
-  return S.object()
-    .prop('error', S.boolean())
-    .prop('message', S.string())
-    .prop('access_token', S.string())
-}
-
-/**
- * Schema for /login endpoint
- */
-const loginBody = S.object()
-  .prop('email', S.string().minLength(6).maxLength(100).format('email').required())
-  .prop('password', S.string().required())
-
-const loginResponse = responseBody()
-
 const loginSchema = {
-  body: loginBody,
-  response: { 200: loginResponse }
+  body: emailPassObj,
+  response: { 200: responseObject() }
 }
-
 /**
- * Schema for /register endpoint
+ * * POST /v1/auth/register
  */
-const registerBody = S.object()
-  .prop('name', S.string())
+const registerSchema = {
+  body: emailPassObj,
+  response: { 201: responseObject() }
+}
+/**
+ * * GET /v1/auth/me
+ */
+const meSchema = {
+  response: {
+    200: responseObject(userObject)
+  }
+}
+/**
+ * * GET /v1/auth/me
+ */
+const requestOTPSchema = {
+  body: S.object().prop('email', S.string().minLength(6).maxLength(100).format('email').required()),
+  response: {
+    200: responseObject()
+  }
+}
+/**
+ * * POST /v1/auth/verify-email
+ */
+const verifyEmailSchema = {
+  body: S.object().prop('code', S.string().minLength(5).maxLength(6).required()),
+  response: { 201: responseObject(S.object().prop('token', S.string())) }
+}
+/**
+ * * POST /v1/auth/reset-password
+ */
+const resetPassBody = S.object()
   .prop('email', S.string().minLength(6).maxLength(100).format('email').required())
   .prop('password', S.string().required())
+  .prop('code', S.string().minLength(5).maxLength(6).required())
 
-const registerResponse = responseBody()
-
-const registerSchema = {
-  body: registerBody,
-  response: { 201: registerResponse }
+const resetPasswordSchema = {
+  body: resetPassBody,
+  response: { 201: responseObject(S.object().prop('token', S.string())) }
 }
 
-/**
- * Schema for /me endpoint
- */
-const meResponse = responseBody(
-  S.object()
-    .prop('id', S.number().required())
-    .prop('name', S.string())
-    .prop('email', S.string().required())
-    .prop('user_type', S.string())
-    .prop('created_at', S.string())
-    .prop('updated_at', S.string())
-)
-const meSchema = {
-  response: { 200: meResponse }
+module.exports = {
+  loginSchema,
+  registerSchema,
+  meSchema,
+  requestOTPSchema,
+  verifyEmailSchema,
+  resetPasswordSchema
 }
-
-module.exports = { loginSchema, registerSchema, meSchema }

@@ -1,15 +1,22 @@
 'use strict'
 
-require('dotenv').config()
+const { readFileSync } = require('fs')
+const { join } = require('path')
+
 const fp = require('fastify-plugin')
 const { default: fastifyJwt } = require('@fastify/jwt')
 
 /**
  * This plugins issues Json Web Tokens for Authorization
+ * * P-256 ECDSA keys for JWT
  */
-async function fastJWT(fastify, opts) {
+const fastJWT = async function (fastify, opts) {
   fastify.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET
+    secret: {
+      private: readFileSync(`${join(__dirname, '..', 'certs')}/private.pem`),
+      public: readFileSync(`${join(__dirname, '..', 'certs')}/public.pem`)
+    },
+    sign: { algorithm: 'ES256' }
   })
 
   fastify.decorate('authenticate', async function (request, reply) {
