@@ -1,49 +1,36 @@
 # Fastify Starter Template
-This is a fastify starter template with authentication using `JWT` and `bcrypt.js` via `Knex.js`
+This is a fastify starter template with authentication, otp verification using `JWT` and `bcrypt.js` via `Knex.js`
  
-Includes common features like :
-- global error handling
-- serialization 
-- validation
-- `helmet`
-- `cors` 
-- `formdata` 
-- `multipart`
-- `dotenv`
+Includes features :
+- Auth 
+- OTP verification with Redis
+- User CRUD
+- User Role
+- Global Error Handler with `@fastify/sensible`
+## Project Structure
+
+- app contains all separated features
+- helpers contain commonly used features
+- handlers => request sanitization & response data, anonymous functions only
+- services => database & cache operations, arrow functions only
+- schemas =>  request validation & response serialization 
 
 ## Installation Steps
 
-A few installation methods provided below:
 
-### For Docker users :
+### Local: Node >= 16.
 
-this is a production image, no pretty logs
-
+create ```.env``` from ```.env.example``` file and replace with necessary values. You will need a MySQL or MariaDB database with a Redis instance. You can setup Redis with docker. Then just install and run.
 ```
-docker build . -t fastify
-docker run -p 3000:3000 -d fastify
-```
-
-### Node >= 16, on any machine.
-
-create ```.env``` from ```.env.example``` file and replace with necessary values.
-```
-npm i 
+npm install
 npm run dev
 ```
+### Docker :
 
-## Project Structure
+this is a production image build, no pretty logs. you will need to provide necessary env values before building image.
 
-- everything in fastify is a plugin. u can register them.
-- app contains all separated logic
-- subdirectories of app contain encapsulated applications 
-- handlers take care of request/response data
-- services take care of database operations
-- schemas define serialization and validation
-- plugins are globally available logic
-- `this` context is enabled inside handlers by default. arrow functions will break the context.
-- database has migrations and schema, used by `knex` commands
+```
+docker build . -t fastifyapp
+docker run -d -p 3000:3000 --name fastifyapp fastifyapp
+```
 
-## Learn More
-
-To learn Fastify, check out the [Fastify documentation](https://www.fastify.io/docs/latest/).
