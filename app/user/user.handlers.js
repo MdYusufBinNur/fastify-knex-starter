@@ -15,7 +15,7 @@ const { getCache, removeCache } = require('../../helpers/common/services')
  * * Handler GET /v1/category/flush
  */
 const flush = async function (request, reply) {
-  await removeCache(this, 'acs:user*')
+  await removeCache(this, 'user*')
 
   reply.code(200)
   return {
@@ -31,7 +31,7 @@ const role = async function (request, reply) {
 
   const { message, data } = await userRole(this, { action, id })
 
-  this.redis.set(`acs:user:${id}`, JSON.stringify(data))
+  this.redis.set(`user:${id}`, JSON.stringify(data))
 
   reply.code(200)
 
@@ -44,7 +44,7 @@ const role = async function (request, reply) {
  * * Handler GET /v1/users/
  */
 const fetchList = async function (request, reply) {
-  const key = 'acs:user'
+  const key = 'user'
 
   var data = await getCache(this, key)
 
@@ -66,7 +66,7 @@ const fetchList = async function (request, reply) {
  */
 const fetchById = async function (request, reply) {
   const id = request.params.id
-  const key = `acs:user:${id}`
+  const key = `user:${id}`
 
   var data = await getCache(this, key)
 
@@ -104,7 +104,7 @@ const update = async function (request, reply) {
   const id = request.params.id
   const data = await updateUser(this, id, request.body)
 
-  this.redis.set(`acs:user:${id}`, JSON.stringify(data))
+  this.redis.set(`user:${id}`, JSON.stringify(data))
 
   reply.code(201)
 
@@ -121,7 +121,7 @@ const destroy = async function (request, reply) {
   const id = request.params.id
   await deleteUser(this, id)
 
-  this.redis.del(`acs:user:${id}`)
+  this.redis.del(`user:${id}`)
 
   reply.code(200)
   return {

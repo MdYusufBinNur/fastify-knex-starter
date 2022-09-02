@@ -9,7 +9,7 @@ module.exports = async function (fastify, options) {
    * * Entrypoint Cache Test
    */
   fastify.get('/', async function (request, reply) {
-    const key = 'acs:hello'
+    const key = 'web:hello'
 
     var data = await fastify.redis.get(key, (error, value) => {
       if (error) fastify.log.warn(error)
@@ -20,7 +20,7 @@ module.exports = async function (fastify, options) {
 
     if (!data) {
       data = 'Hello World'
-      this.redis.set(key, 'Redis => API for ArektaCoinStore')
+      this.redis.set(key, 'Redis => API for Website')
     }
 
     reply.code(200)

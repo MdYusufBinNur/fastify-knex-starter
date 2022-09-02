@@ -20,7 +20,7 @@ const commonFetchList = async (app, query, key, message) => {
 //  const response_data = await commonFetchList(
 //     this,
 //     categoryList,
-//     'acs:category',
+//     'category',
 //     'Category List Fetched!'
 //   )
 
