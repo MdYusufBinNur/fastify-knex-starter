@@ -1,4 +1,6 @@
-node_modules
+.env
+.env.example
+.kubernetes
 .vscode
 .git
 .github
@@ -9,8 +11,7 @@ node_modules
 .prettierrc.json
 .prettierignore
 nodemon.json
-.kubernetes
+node_modules
 Dockerfile
 README.md
-.env
-.env.example
+database

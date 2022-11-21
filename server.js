@@ -1,18 +1,15 @@
-'use strict'
-
 require('dotenv').config()
 
 const Fastify = require('fastify')
 const closeWithGrace = require('close-with-grace')
-const { default: fastifyCors } = require('@fastify/cors')
-const { default: fastifyHelmet } = require('@fastify/helmet')
-const { default: fastifySensible } = require('@fastify/sensible')
-const { default: fastifyRedis } = require('@fastify/redis')
 
-const knexconf = require('./knexfile')
-const knex = require('./helpers/plugins/knex')
-const fastJWT = require('./helpers/plugins/jwt')
-const routes = require('./app/routes')
+var dev = process.env.NODE_ENV
+
+if (dev && dev === 'development') {
+  dev = true
+} else {
+  dev = false
+}
 
 /**
  * * give array of ip for trustproxy in production
@@ -20,51 +17,59 @@ const routes = require('./app/routes')
 const app = Fastify({
   trustProxy: true,
   logger: {
-    transport:
-      process.env.NODE_ENV == 'dev'
-        ? {
-            target: 'pino-pretty',
-            options: {
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname'
-            }
+    transport: dev
+      ? {
+          target: 'pino-pretty',
+          options: {
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname'
           }
-        : undefined
+        }
+      : undefined
   }
 })
-
-const corsOptions = {
-  origin: [
-    /\.example\.com$/,
-    'http://localhost:3000',
-  ],
-  method: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin', 'Origin'],
-  credentials: true,
-  optionsSuccessStatus: 200
+// * configuration decorator and defaults
+app
+  .decorate('conf', require('./config/common/config'))
+  .register(require('@fastify/helmet'), { global: true })
+  .register(require('@fastify/cors'), app.conf.cors)
+  .register(require('@fastify/formbody'))
+  .register(require('./config/plugins/jwt'))
+  .register(require('@fastify/sensible'))
+/**
+ * * redis, because rate limit wants raw connection
+ */
+const Redis = require('ioredis')
+const client = new Redis(app.conf.redis)
+app.register(require('@fastify/redis'), { client })
+/**
+ * * Rate limit setup
+ */
+app.conf.rate_limit.redis = client
+app.register(require('@fastify/rate-limit'), app.conf.rate_limit)
+/**
+ * * MySQL Database
+ */
+const knex = require('./config/plugins/knex')
+if (dev) {
+  app.log.info('db: development')
+  const { development } = require('./knexfile')
+  app.register(knex, development)
+} else {
+  app.log.info('db: production')
+  app.register(knex, app.conf.sql)
 }
-
-app.register(fastifyCors, corsOptions)
-app.register(fastifyHelmet, { global: true })
-app.register(fastifySensible)
-
-app.register(fastifyRedis, {
-  host: process.env.REDIS_URL || 'redis.redis.svc.cluster.local',
-  port: process.env.REDIS_PORT || '6379'
-})
-
-app.register(knex, knexconf)
-app.register(fastJWT)
 
 /**
  * * Register the app directory
  */
-app.register(routes)
+app.register(require('./app/routes'))
 
 /**
- *  * delay is the number of milliseconds for the graceful close to finish
- * */
+ * * delay is the number of milliseconds for the graceful close to finish
+ */
 const closeListeners = closeWithGrace({ delay: 2000 }, async function ({ signal, err, manual }) {
+  app.log.info('graceful shutdown -> entered')
   if (err) {
     app.log.error(err)
   }
@@ -73,18 +78,21 @@ const closeListeners = closeWithGrace({ delay: 2000 }, async function ({ signal,
 
 app.addHook('onClose', async (instance, done) => {
   closeListeners.uninstall()
+  app.log.info('graceful shutdown -> sucessful')
   done()
 })
 
-app.listen(
-  {
-    port: process.env.PORT || 3000,
-    host: process.env.HOST || '0.0.0.0'
-  },
-  err => {
-    if (err) {
-      app.log.error(err)
-      process.exit(1)
-    }
+// * Run the server!
+const start = async () => {
+  try {
+    await app.listen({
+      port: process.env.PORT || 3000,
+      host: process.env.HOST || '0.0.0.0'
+    })
+  } catch (err) {
+    app.log.error(err)
+    process.exit(1)
   }
-)
+}
+
+start()

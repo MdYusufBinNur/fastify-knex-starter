@@ -1,26 +1,30 @@
-'use strict'
-const { is_admin } = require('../helpers/common/hooks')
-
-const authRoutes = require('./auth')
-const userRoutes = require('./user')
+const authPublicRoutes = require('./auth/public')
+const authAdminRoutes = require('./auth/admin')
+const userAdminRoutes = require('./user/admin')
+const userCustomerRoutes = require('./user/customer')
+const galleryRoutes = require('./gallery')
 
 module.exports = async function (fastify, options) {
+  fastify.setNotFoundHandler(
+    {
+      preHandler: fastify.rateLimit({
+        max: 3,
+        timeWindow: 1000 * 60
+      })
+    },
+    function (request, reply) {
+      reply.code(404).send({ error: true, message: '404 - Route Not Found' })
+    }
+  )
   /**
    * * Entrypoint Cache Test
    */
   fastify.get('/', async function (request, reply) {
-    const key = 'web:hello'
-
-    var data = await fastify.redis.get(key, (error, value) => {
-      if (error) fastify.log.warn(error)
-      if (value != null) {
-        return value
-      }
-    })
+    var data = await fastify.redis.get('acs:hello')
 
     if (!data) {
       data = 'Hello World'
-      this.redis.set(key, 'Redis => API for Website')
+      this.redis.set('acs:hello', 'Redis => API for ArektaCoinStore')
     }
 
     reply.code(200)
@@ -33,32 +37,27 @@ module.exports = async function (fastify, options) {
   /**
    * * Global Redis Flush
    */
-  fastify.delete('/flush', { onRequest: is_admin }, async function (request, reply) {
-    const res = await fastify.redis.flushall('SYNC', (error, success) => {
+  fastify.post('/flush', { onRequest: fastify.role.admin }, async function (request, reply) {
+    await fastify.redis.flushall('ASYNC', (error, data) => {
       if (error) fastify.log.error(error)
-      if (success === 'OK') {
+      if (data === 'OK') {
         fastify.log.info('Redis Cache flushed.')
       }
     })
 
-    if (res === 'OK') {
-      reply.code(200)
-      return {
-        error: false,
-        message: 'Redis globally flushed'
-      }
-    }
-
-    reply.code(400)
+    reply.code(200)
     return {
-      error: true,
-      message: 'Action Not Performed'
+      error: false,
+      message: 'Redis globally flushed'
     }
   })
 
   /**
    * * Service Routes Registration with Prefix
    */
-  fastify.register(authRoutes, { prefix: '/v1/auth' })
-  fastify.register(userRoutes, { prefix: '/v1/user' })
+  fastify.register(authPublicRoutes, { prefix: '/v1/auth' })
+  fastify.register(authAdminRoutes, { prefix: '/v1/admin/auth' })
+  fastify.register(galleryRoutes, { prefix: '/v1/gallery' })
+  fastify.register(userAdminRoutes, { prefix: '/v1/user/admin' })
+  fastify.register(userCustomerRoutes, { prefix: '/v1/user/customer' })
 }

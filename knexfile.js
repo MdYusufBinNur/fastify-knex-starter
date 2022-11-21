@@ -1,31 +1,39 @@
-require('dotenv').config()
-const { resolve } = require('path')
+const { resolve } = require('node:path')
 
-const debug = process.env.NODE_ENV == 'dev' ? true : false
-
-const knexconf = {
-  client: 'mysql',
-  // pool: {
-  //   min: parseInt(process.env.DB_MIN_CONNECTIONS),
-  //   max: parseInt(process.env.DB_MAX_CONNECTIONS)
-  // },
-  acquireConnectionTimeout: 10000,
-  migrations: {
-    tableName: 'knex_migrations',
-    directory: resolve(__dirname, 'database/migrations')
+module.exports = {
+  postgres: {
+    client: 'pg',
+    connection: process.env.PG_CONNECTION_STRING || 'postgres://postgres@localhost/arektacoinpg',
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: resolve(__dirname, 'database/migrations')
+    },
+    seeds: {
+      directory: resolve(__dirname, 'database/seeds')
+    }
   },
-  seeds: {
-    directory: resolve(__dirname, 'database/seeds')
-  },
-  connection: {
-    host: process.env.DB_HOST || '127.0.0.1',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'api-db',
-    port: process.env.DB_PORT || '3306'
-  },
-  asyncStackTraces: true,
-  debug: debug
+  development: {
+    client: 'mysql2',
+    acquireConnectionTimeout: 10000,
+    pool: {
+      min: 1,
+      max: 10
+    },
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: resolve(__dirname, 'database/migrations')
+    },
+    seeds: {
+      directory: resolve(__dirname, 'database/seeds')
+    },
+    connection: {
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'arektacoinstore',
+      port: process.env.DB_PORT || '3306'
+    },
+    asyncStackTraces: true,
+    debug: true
+  }
 }
-
-module.exports = knexconf

@@ -1,17 +1,13 @@
-# --------------> The build image
-FROM node:16-alpine3.15 AS build
+# --------> The build image
+FROM node:18-alpine AS build
 WORKDIR /usr/src/app
-COPY package*.json /usr/src/app/
-RUN npm install -g npm@8.18.0
+COPY package*.json ./
 RUN npm install --omit=dev
 
-# --------------> The production image
-FROM node:16-alpine3.15
-RUN npm install -g npm@8.18.0
-RUN apk add --no-cache dumb-init
-ENV NODE_ENV production
-USER node
+# --------> The production image, USER node in alpine
+FROM gcr.io/distroless/nodejs:18
+USER 1000
 WORKDIR /usr/src/app
-COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
-COPY --chown=node:node . /usr/src/app
-CMD ["dumb-init", "node", "server.js"]
+COPY --chown=1000:1000 --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=1000:1000 . .
+CMD ["server.js"]
