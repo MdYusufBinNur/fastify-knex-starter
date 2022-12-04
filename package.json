@@ -10,7 +10,7 @@
     "sql": "bash ./database/database.sh",
     "key": "cd config/certs/ && bash generate.sh"
   },
-  "author": "AxelTahmid",
+  "author": "Yusuf",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.186.0",

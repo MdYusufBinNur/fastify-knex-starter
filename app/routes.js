@@ -55,9 +55,9 @@ module.exports = async function (fastify, options) {
   /**
    * * Service Routes Registration with Prefix
    */
-  fastify.register(authPublicRoutes, { prefix: '/v1/auth' })
-  fastify.register(authAdminRoutes, { prefix: '/v1/admin/auth' })
-  fastify.register(galleryRoutes, { prefix: '/v1/gallery' })
-  fastify.register(userAdminRoutes, { prefix: '/v1/user/admin' })
-  fastify.register(userCustomerRoutes, { prefix: '/v1/user/customer' })
+  fastify.register(authPublicRoutes, { prefix: '/api/v1/auth' })
+  fastify.register(authAdminRoutes, { prefix: '/api/v1/admin/auth' })
+  fastify.register(galleryRoutes, { prefix: '/api/v1/gallery' })
+  fastify.register(userAdminRoutes, { prefix: '/api/v1/user/admin' })
+  fastify.register(userCustomerRoutes, { prefix: '/api/v1/user/customer' })
 }
